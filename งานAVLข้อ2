@@ -1,0 +1,64 @@
+class Node {
+    int key; // คีย์ของโหนด
+    Object data; // ข้อมูลที่เก็บใน
+    int height; //ความสูงของโหนด
+    Node left; // โหนดลูกซ้าย
+    Node right; // โหนดลูกขวา
+
+    Node (int key, Object data, int height) {
+        this.key = key; //กำหนดค่า key  
+        this.data = data; //กำหนดข้อมูล
+        this.height = height; //กำหนดความสูง
+        this.left = null; //โหนดลูกซ้ายเริ่มต้นเป็น null
+        this.right = null; //โหนดลูกขวาเริ่มต้นเป็น null
+    }
+}
+
+class AVLTreeValidator {
+
+    // คลาสช่วยในการเก็บผลลัพธ์ของการตรวจสอบ
+    class AVLResult {
+        boolean isAVL; // ต้นไม้เป็น AVL หรือไม่
+        int height; // ความสูงของโหนด
+
+        AVLResult(boolean isAVL, int height) {
+            this.isAVL = isAVL; // กำหนดค่าการตรวจสอบว่าเป็น AVL หรือไม่
+            this.height = height; // กำหนดค่าความสูงของโหนด
+        }
+    }
+    public boolean isAVLTree(Node root) {
+        return validataAVL(root).isAVL; // ตรวจสอบว่าต้นไม้เป็น AVL หรือไม่
+    } 
+    
+    private AVLResult validataAVL(Node node) {
+        if (node == null) {
+            return new AVLResult(true, -1); // กรณีฐาน: ถ้าโหนดเป็น null แสดงว่าเป็น AVL และความสูงคือ -1
+        }
+        // ตรวจสอบต้นไม้ย่อยทางซ้ายแบบ recursive
+        AVLResult leftResult = validataAVL(node.left);
+        if (!leftResult.isAVL) {
+            return new AVLResult(false, 0); // ถ้าต้นไม้ย่อยทางซ้ายไม่เป็น AVL ให้คืน false
+        }
+        // ตรวจสอบต้นไม้ย่อยทางขวาแบบ recursive
+        AVLResult rightResult = validataAVL(node.right);
+        if (!rightResult.isAVL) {
+            return new AVLResult(false, 0); // ถ้าต้นไม้ย่อยทางขวาไม่เป็น AVL ให้คืน false
+        }
+        // ตรวจสอบว่าโหนดปัจจุบันเป็น Binary seaech tree (BST) หรือไม่
+        if((node.left != null && node.left.key >= node.key) || (node.right != null && node.right.key <= node.key)) {
+            return new AVLResult(false, 0); // ถ้าฝ่าฝืนกฏของ BST ให้คืนค่า false
+        }
+        // ตรวจสอบว่าความสูงของโหนดปัจจุบันมีความสมบูรณ์หรือไม่ (ความต่างของความสูงระหว่างโหนดลูกซ้ายและโหนดลูกขวาต้องไม่เกิน 1)
+        int balanceFactor = Math.abs(leftResult.height - rightResult.height);
+        if (balanceFactor > 1) {
+            return new AVLResult(false, 0); // ถ้าโหนดไม่สมดุล ให้คืน false
+        }
+        // ตรวจสอบว่าความสูงของโหนดปัจจุบันถูกต้องหรือไม่
+        int expectedHeight = 1 + Math.max(leftResult.height, rightResult.height);
+        if (node.height != expectedHeight) {
+            return new AVLResult(false, 0); // ถ้าความสูงของโหนดไม่ถูกต้องให้คืน false
+        }
+        // ถ้าผ่านทุกการตรวจสอบให้คืน true และความสูงที่ถูกต้องของโหนดนี้
+        return new AVLResult(true, expectedHeight);
+    }
+}
